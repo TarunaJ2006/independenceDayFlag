@@ -1,20 +1,27 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import GUI from 'lil-gui'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
+// import GUI from 'lil-gui'
 import testFragment from "./shaders/test/fragment.glsl"
 import testVertex from "./shaders/test/vertex.glsl" 
-
+import { RGBELoader } from 'three/examples/jsm/Addons.js'
 /**
  * Base
  */
 // Debug
-const gui = new GUI()
+// const gui = new GUI()
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 
 // Scene
 const scene = new THREE.Scene()
+
+/**
+ * Fonts
+ */
+const fontLoader = new FontLoader()
 
 /**
  * Textures
@@ -30,9 +37,11 @@ const geometry = new THREE.PlaneGeometry(1,1, 32, 32)
 const count = geometry.attributes.position.count
 console.log('Vertex Count:', count) // Log the number of vertices
 const randoms = new Float32Array(count);
+
 for (let i = 0; i < count; i++) {
     randoms[i] = Math.random();
 }
+
 geometry.setAttribute("aRandom", new THREE.BufferAttribute(randoms,1))
 
 // Material
@@ -49,13 +58,92 @@ const material = new THREE.ShaderMaterial({
 })
  
 //gui
-gui.add(material.uniforms.uFrequency.value, 'x').min(0).max(20).step(0.01).name('Frequency X')
-gui.add(material.uniforms.uFrequency.value, 'y').min(0).max(20).step(0.01).name('Frequency Y')
+// gui.add(material.uniforms.uFrequency.value, 'x').min(0).max(20).step(0.01).name('Frequency X')
+// gui.add(material.uniforms.uFrequency.value, 'y').min(0).max(20).step(0.01).name('Frequency Y')
 
 // Mesh
 const mesh = new THREE.Mesh(geometry, material)
-mesh.scale.y = 2/3
-scene.add(mesh)
+const scaleFlag = 5
+
+mesh.scale.y = scaleFlag * 2 / 3
+mesh.scale.x = scaleFlag * 2
+
+mesh.position.y += 5
+
+
+/**
+ * 3D Text
+ */
+fontLoader.load(
+    'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
+    (font) => {
+        // Text geometry
+        const textGeometry = new TextGeometry('Happy Independence Day', {
+            font: font,
+            size: 0.5,
+            height: 0.2,
+            curveSegments: 12,
+            bevelEnabled: true,
+            bevelThickness: 0.03,
+            bevelSize: 0.02,
+            bevelOffset: 0,
+            bevelSegments: 5
+        })
+        
+        // Center the text
+        textGeometry.center()
+
+        // Text material
+        const textMaterial = new THREE.MeshStandardMaterial({
+            // color: '#bf00ff',
+            map: textureLoader.load('/textures/Flag_of_India.png') // Saffron orange color for Independence Day
+        })
+        
+        // Text mesh
+        const text = new THREE.Mesh(textGeometry, textMaterial)
+        text.position.y = 1.5 // Position above the flag
+        group.add(text)
+        // Add rotation animation to text
+        const animateText = () => {
+            text.rotation.y = Math.sin(Date.now() * 0.001) * 0.1
+        }
+        
+        // Update the main animation loop to include text animation
+        const originalTick = tick
+        window.textAnimation = animateText
+    }
+)
+
+const group = new THREE.Group()
+group.add(mesh)
+
+scene.add(group)
+
+group.position.y -= 1
+
+group.scale.set(0.2, 0.2, 0.2)
+
+
+const ambientLight = new THREE.AmbientLight('#ffffff', 0.5)
+scene.add(ambientLight)
+
+
+// const countStars = 500
+// let position;
+// for (let i = 0; i < countStars; i++) {
+//     position = new THREE.Vector3(
+//         (Math.random() - 0.5) * 10,
+//         (Math.random() - 0.5) * 10,
+//         (Math.random() - 0.5) * 10
+//     );
+//     const star = new THREE.Mesh(
+//         new THREE.SphereGeometry(0.05, 16, 16),
+//         new THREE.MeshStandardMaterial({ color: '#ffffff' })
+//     );
+//     star.position.copy(position);
+//     scene.add(star);
+// }
+
 
 /**
  * Sizes
@@ -64,6 +152,10 @@ const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
 }
+
+const directLight = new THREE.DirectionalLight('#00ff08ff', 2)
+group.add(directLight)
+
 
 window.addEventListener('resize', () =>
 {
@@ -80,13 +172,17 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
+
+
+
 /**
  * Camera
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.set(0.25, - 0.25, 1)
+camera.position.set(0, 0, 3)
 scene.add(camera)
+
 
 // Controls
 const controls = new OrbitControls(camera, canvas)
@@ -100,6 +196,13 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+const rgbeLoader = new RGBELoader()
+rgbeLoader.load('/textures/HDR_multi_nebulae.hdr', (texture) => {
+    texture.mapping = THREE.EquirectangularReflectionMapping
+    scene.background = texture
+})
+
+
 
 /**
  * Animate
@@ -112,6 +215,11 @@ const tick = () =>
 
     // Update uniforms
     material.uniforms.uTime.value = elapsedTime
+
+    // Animate text if it exists
+    if (window.textAnimation) {
+        window.textAnimation()
+    }
 
     // Update controls
     controls.update()
