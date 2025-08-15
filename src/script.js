@@ -63,10 +63,10 @@ const material = new THREE.ShaderMaterial({
 
 // Mesh
 const mesh = new THREE.Mesh(geometry, material)
-const scaleFlag = 5
+const scaleFlag = 7
 
 mesh.scale.y = scaleFlag * 2 / 3
-mesh.scale.x = scaleFlag * 2
+mesh.scale.x = scaleFlag * 1
 
 mesh.position.y += 5
 
