@@ -128,22 +128,35 @@ const ambientLight = new THREE.AmbientLight('#ffffff', 0.5)
 scene.add(ambientLight)
 
 
-// const countStars = 500
-// let position;
-// for (let i = 0; i < countStars; i++) {
-//     position = new THREE.Vector3(
-//         (Math.random() - 0.5) * 10,
-//         (Math.random() - 0.5) * 10,
-//         (Math.random() - 0.5) * 10
-//     );
-//     const star = new THREE.Mesh(
-//         new THREE.SphereGeometry(0.05, 16, 16),
-//         new THREE.MeshStandardMaterial({ color: '#ffffff' })
-//     );
-//     star.position.copy(position);
-//     scene.add(star);
-// }
+const countStars = 5000
 
+const startTexture = textureLoader.load('/textures/8.png')
+
+
+const pointMaterial = new THREE.PointsMaterial({
+    color: '#ffffff',
+    size: 0.05,
+    sizeAttenuation: true,
+    map: startTexture,
+    transparent: true,
+    alphaMap: startTexture
+})
+
+
+
+const pointGeometry = new THREE.BufferGeometry()
+
+const positions = new Float32Array(countStars * 3)
+for (let i = 0; i < countStars; i++) {
+    const x = (Math.random() - 0.5) * 10
+    const y = (Math.random() - 0.5) * 10
+    const z = (Math.random() - 0.5) * 10
+    positions.set([x, y, z], i * 3)
+}
+pointGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+
+const stars = new THREE.Points(pointGeometry, pointMaterial)
+scene.add(stars)
 
 /**
  * Sizes
@@ -187,6 +200,8 @@ scene.add(camera)
 // Controls
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
+controls.minDistance = 1      // Minimum zoom distance
+controls.maxDistance = 7     // Maximum zoom distance
 
 /**
  * Renderer
@@ -196,11 +211,11 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-const rgbeLoader = new RGBELoader()
-rgbeLoader.load('/textures/HDR_multi_nebulae.hdr', (texture) => {
-    texture.mapping = THREE.EquirectangularReflectionMapping
-    scene.background = texture
-})
+// const rgbeLoader = new RGBELoader()
+// rgbeLoader.load('/textures/HDR_multi_nebulae.hdr', (texture) => {
+//     texture.mapping = THREE.EquirectangularReflectionMapping
+//     scene.background = texture
+// })
 
 
 
