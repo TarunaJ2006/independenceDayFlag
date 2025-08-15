@@ -197,7 +197,7 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 const rgbeLoader = new RGBELoader()
-rgbeLoader.load('/textures/HDR_multi_nebulae.hdr', (texture) => {
+rgbeLoader.load('https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/lakeside_sunrise.jpg', (texture) => {
     texture.mapping = THREE.EquirectangularReflectionMapping
     scene.background = texture
 })
