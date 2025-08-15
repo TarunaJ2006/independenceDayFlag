@@ -211,11 +211,11 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-// const rgbeLoader = new RGBELoader()
-// rgbeLoader.load('/textures/HDR_multi_nebulae.hdr', (texture) => {
-//     texture.mapping = THREE.EquirectangularReflectionMapping
-//     scene.background = texture
-// })
+const rgbeLoader = new RGBELoader()
+rgbeLoader.load('/textures/HDR_multi_nebulae.hdr', (texture) => {
+    texture.mapping = THREE.EquirectangularReflectionMapping
+    scene.background = texture
+})
 
 
 
