@@ -5,7 +5,6 @@ import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 // import GUI from 'lil-gui'
 import testFragment from "./shaders/test/fragment.glsl"
 import testVertex from "./shaders/test/vertex.glsl" 
-import { RGBELoader } from 'three/examples/jsm/Addons.js'
 /**
  * Base
  */
@@ -211,11 +210,6 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-const rgbeLoader = new RGBELoader()
-rgbeLoader.load('/textures/HDR_multi_nebulae.hdr', (texture) => {
-    texture.mapping = THREE.EquirectangularReflectionMapping
-    scene.background = texture
-})
 
 
 
